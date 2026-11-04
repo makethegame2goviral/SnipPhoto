@@ -67,10 +67,20 @@ function showGame(kind) {
   if (!panel) return;
   const details = {
     egg: ['🥚 Ei-Timing', 'Tippe auf das Ei und sammle Punkte.', '🥚 Antippen'],
-    emoji: ['😀 Emoji-Paar', 'Merke dir das Ziel und wähle dasselbe Emoji.', 'Neues Ziel'],
+    emoji: ['😀 Emoji-Paar', 'Merke dir das Ziel und wähle dasselbe Symbol.', ''],
     cloud: ['☁️ Wolken-Taps', 'Wie viele Punkte schaffst du mit Tippen?', '☁️ Hüpfen'],
     light: ['🚦 Ampel-Stopp', 'Tippe nur, wenn die Ampel GRÜN zeigt.', 'Runde starten'],
   }[kind];
+  if (kind === 'emoji') {
+    const target = ['🍓','🌙','🐸','⭐'][Math.floor(Math.random()*4)];
+    const choices = ['🍓','🌙','🐸','⭐'].sort(() => Math.random() - .5);
+    panel.dataset.targetEmoji = target;
+    panel.innerHTML = `<div class="lens-hub-head"><span>${details[0]}</span><button class="lens-close" data-lens-close>×</button></div>
+      <div class="lens-play"><p>${details[1]}</p><div class="score">${target}</div><div class="lens-status" data-lens-status>Welches Symbol passt?</div>
+      <div class="lens-grid">${choices.map((emoji) => `<button data-emoji-choice="${emoji}">${emoji}</button>`).join('')}</div>
+      <div class="score" data-lens-score>0</div><button class="back-game" data-lens-back>← Zurück</button></div>`;
+    return;
+  }
   panel.innerHTML = `<div class="lens-hub-head"><span>${details[0]}</span><button class="lens-close" data-lens-close>×</button></div>
     <div class="lens-play"><p>${details[1]}</p><div class="score" data-lens-score>0</div><div class="lens-status" data-lens-status>Bereit?</div><button class="play-button" data-lens-play="${kind}">${details[2]}</button><button class="back-game" data-lens-back>← Zurück</button></div>`;
 }
@@ -87,6 +97,23 @@ document.addEventListener('click', (event) => {
   }
   const game = event.target.closest('[data-lens-game]');
   if (game) { showGame(game.dataset.lensGame); return; }
+  const emojiChoice = event.target.closest('[data-emoji-choice]');
+  if (emojiChoice) {
+    const panel = hub();
+    const status = panel?.querySelector('[data-lens-status]');
+    const score = panel?.querySelector('[data-lens-score]');
+    const correct = emojiChoice.dataset.emojiChoice === panel?.dataset.targetEmoji;
+    if (status) status.textContent = correct ? 'Richtig! 🎉' : 'Fast! Schau dir das Ziel noch einmal an.';
+    if (correct && score) score.textContent = String(Number(score.textContent || 0) + 1);
+    if (correct) {
+      const target = ['🍓','🌙','🐸','⭐'][Math.floor(Math.random()*4)];
+      const choices = ['🍓','🌙','🐸','⭐'].sort(() => Math.random() - .5);
+      panel.dataset.targetEmoji = target;
+      panel.querySelector('.lens-play .score').textContent = target;
+      panel.querySelector('.lens-grid').innerHTML = choices.map((emoji) => '<button data-emoji-choice="' + emoji + '">' + emoji + '</button>').join('');
+    }
+    return;
+  }
   const play = event.target.closest('[data-lens-play]');
   if (!play) return;
   const kind = play.dataset.lensPlay;
