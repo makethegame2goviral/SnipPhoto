@@ -1,0 +1,12 @@
+{
+  "name": "SnipPhoto",
+  "short_name": "SnipPhoto",
+  "description": "Deine Momente. Deine Freunde.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffc00",
+  "theme_color": "#fffc00",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
